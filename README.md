@@ -1,2 +1,2 @@
 # form-validation
-Form-Validation with PHP and Basic materializecss
+Form-Validation with PHP
