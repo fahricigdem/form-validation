@@ -1,15 +1,43 @@
 <?php
 
+ini_set("display_errors", 1);
+ini_set("track_errors", 1);
+ini_set("html_errors", 1);
+error_reporting(E_ALL);
+
 // connect database and controll connection
 include('config/db_connect.php');
 
+// check GET request id param
+if(isset($_GET['id'])){
+    
+    // escape sql chars
+    $id = mysqli_real_escape_string($conn, $_GET['id']);
+
+    // make sql
+    $sql = "SELECT * FROM pizzas WHERE id = $id";
+
+    // get the query result
+    $result = mysqli_query($conn, $sql);
+
+    // fetch result in array format
+    $pizza = mysqli_fetch_assoc($result);
+
+    mysqli_free_result($result);
+    mysqli_close($conn);
+
+}
+
 // initialize the variables
-$email = $title = $ingredients = '';
+$id = $pizza['id'];
+$email = $pizza['email'];
+$title = $pizza['title'];
+$ingredients = $pizza['ingredients'];
 $errors = array('email' => '', 'title' => '', 'ingredients' => '');
 
 // form validation
 if(isset($_POST['submit'])){
-
+    
     // check email
     if(empty($_POST['email'])){
         $errors['email'] = 'An email is required <br />';
@@ -20,7 +48,6 @@ if(isset($_POST['submit'])){
         }
     }
     
-
     // check title
     if(empty($_POST['title'])){
         $errors['title'] = 'A title is required <br />';
@@ -39,18 +66,22 @@ if(isset($_POST['submit'])){
         if(!preg_match('/^([a-zA-Z\s]+)(,\s*[a-zA-Z\s]*)*$/', $ingredients)){
             $errors['ingredients'] = 'Ingredients must be a comma separated list';
         }}
-    
-    // submit the info into database
+
+    // update the info of the pizza
 	if(array_filter($errors)){
 			//echo 'errors in form';
 	} else {
 			// escape sql chars
+            $id_to_update = $_POST['id_to_update'];
 			$email = mysqli_real_escape_string($conn, $_POST['email']);
 			$title = mysqli_real_escape_string($conn, $_POST['title']);
 			$ingredients = mysqli_real_escape_string($conn, $_POST['ingredients']);
 
-			// create sql
-			$sql = "INSERT INTO pizzas(title,email,ingredients) VALUES('$title','$email','$ingredients')";
+            $sql = "UPDATE `pizzas` SET 
+            `email` = '$email', 
+            `title` = '$title', 
+            `ingredients` = '$ingredients' 
+            where `id`=".$id_to_update ;
 
 			// save to db and check
 			if(mysqli_query($conn, $sql)){
@@ -66,13 +97,14 @@ if(isset($_POST['submit'])){
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <?php include('templates/header.php'); ?>
 
 <section class="container grey-text">
-    <h4 class="center">Add a Pizza</h4>
-    <form class="white" action="add.php" method="POST">
+    <h4 class="center">Update the Pizza</h4>
+    <form class="white" action="update.php" method="POST">
+    <input type="hidden" name="id_to_update" value="<?php echo $id ?>">
         <label>Your Email</label>
         <input type="text" name="email" value="<?php echo htmlspecialchars($email) ?>">
         <div class="red-text"><?php echo $errors['email']; ?></div>
@@ -83,11 +115,11 @@ if(isset($_POST['submit'])){
         <input type="text" name="ingredients" value="<?php echo htmlspecialchars($ingredients) ?>">
         <div class="red-text"><?php echo $errors['ingredients']; ?></div>
         <div class="center">
-            <input type="submit" name="submit" value="Submit" class="btn brand z-depth-0">
+            <input type="submit" name="submit" value="Update" class="btn z-depth-0">
         </div>
     </form>
 </section>
-
+ 
 <?php include('templates/footer.php'); ?>
 
 </html>
