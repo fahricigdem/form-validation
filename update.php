@@ -1,10 +1,5 @@
 <?php
 
-ini_set("display_errors", 1);
-ini_set("track_errors", 1);
-ini_set("html_errors", 1);
-error_reporting(E_ALL);
-
 // connect database and controll connection
 include('config/db_connect.php');
 
@@ -70,9 +65,10 @@ if(isset($_POST['submit'])){
     // update the info of the pizza
 	if(array_filter($errors)){
 			//echo 'errors in form';
+            $id = $_POST['id'];
 	} else {
 			// escape sql chars
-            $id_to_update = $_POST['id_to_update'];
+            $id = $_POST['id'];
 			$email = mysqli_real_escape_string($conn, $_POST['email']);
 			$title = mysqli_real_escape_string($conn, $_POST['title']);
 			$ingredients = mysqli_real_escape_string($conn, $_POST['ingredients']);
@@ -81,7 +77,7 @@ if(isset($_POST['submit'])){
             `email` = '$email', 
             `title` = '$title', 
             `ingredients` = '$ingredients' 
-            where `id`=".$id_to_update ;
+            where `id`=".$id ;
 
 			// save to db and check
 			if(mysqli_query($conn, $sql)){
@@ -104,7 +100,7 @@ if(isset($_POST['submit'])){
 <section class="container grey-text">
     <h4 class="center">Update the Pizza</h4>
     <form class="white" action="update.php" method="POST">
-    <input type="hidden" name="id_to_update" value="<?php echo $id ?>">
+        <input type="hidden" name="id" value="<?php echo $id ?>">
         <label>Your Email</label>
         <input type="text" name="email" value="<?php echo htmlspecialchars($email) ?>">
         <div class="red-text"><?php echo $errors['email']; ?></div>
