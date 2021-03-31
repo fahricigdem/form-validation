@@ -42,7 +42,7 @@ if(isset($_POST['submit'])){
     
     // submit the info into database
 	if(array_filter($errors)){
-			//echo 'errors in form';
+			//echo errors in form';
 	} else {
 			// escape sql chars
 			$email = mysqli_real_escape_string($conn, $_POST['email']);
